@@ -17,36 +17,36 @@ repository = "https://github.com/zdz/ServerStatus-Rust"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-chrono = "0.4"
+chrono = "0.4.43"
 
 [dependencies]
-anyhow = "1"
-bytes = {version = "1", features = ["serde"]}
-chrono = "0.4"
-clap = {version = "4.5", features = ["derive", "unicode", "env"]}
-fastrand = "2.0.1"
-hyper = {version = "1.2", features = ["full"]}
-lazy_static = "1.4"
-log = "0.4"
-md5 = "0.7.0"
-once_cell = "1"
-pretty_env_logger = "0.5"
-prettytable-rs = "^0.10"
-prost = "0.12"
-regex = "1.10"
-reqwest = {version = "0.11", features = ["json", "rustls-tls", "brotli", "gzip", "deflate", "stream", "socks"], default-features = false}
-rustls = { version = "0.23.5", default-features = false }
-rustls-pemfile = { version = "2" }
-serde = {version = "1.0", default-features = false, features = ["derive", "alloc"]}
-serde_json = {version = "1.0", default-features = false, features = ["alloc"]}
+anyhow = "1.0.100"
+bytes = {version = "1.11.0", features = ["serde"]}
+chrono = "0.4.43"
+clap = {version = "4.5.55", features = ["derive", "unicode", "env"]}
+fastrand = "2.3.0"
+hyper = {version = "1.8.1", features = ["full"]}
+lazy_static = "1.5.0"
+log = "0.4.29"
+md5 = "0.8.0"
+once_cell = "1.21.3"
+pretty_env_logger = "0.5.0"
+prettytable-rs = "^0.10.0"
+prost = "0.14.3"
+regex = "1.12.2"
+reqwest = {version = "0.13.1", features = ["json", "rustls", "brotli", "gzip", "deflate", "stream", "socks"], default-features = false}
+rustls = { version = "0.23.36", default-features = false }
+rustls-pemfile = { version = "2.2.0" }
+serde = {version = "1.0.228", default-features = false, features = ["derive", "alloc"]}
+serde_json = {version = "1.0.149", default-features = false, features = ["alloc"]}
 stat_common = {path = "../common", version = "1.1.4"}
-sysinfo = "0.30.7"
-tokio = {version = "1", features = ["full"]}
-tokio-rustls = { version = "0.26" }
-tonic = {version = "0.11", features = ["tls", "tls-webpki-roots", "gzip"]}
-tower = { version = "0.4" }
-webpki-roots = "0.26"
-url = "2.5.0"
+sysinfo = "0.38.0"
+tokio = {version = "1.49.0", features = ["full"]}
+tokio-rustls = { version = "0.26.4" }
+tonic = {version = "0.14.3", features = ["gzip"]}
+tower = { version = "0.5.3" }
+webpki-roots = "1.0.5"
+url = "2.5.8"
 
 [features]
 default = ["sysinfo"]
