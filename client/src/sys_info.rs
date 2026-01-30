@@ -132,9 +132,6 @@ pub fn sample(args: &Args, stat: &mut StatRequest) {
     let (mut hdd_total, mut hdd_avail) = (0_u64, 0_u64);
     let (mut hdd_total_bytes, mut hdd_avail_bytes) = (0_u64, 0_u64);
 
-    // #[cfg(not(target_os = "windows"))]
-    // let mut uniq_disk_set = HashSet::new();
-    // let mut uniq_disk_set: HashSet<String> = HashSet::new();
 
     let disks = Disks::new_with_refreshed_list();
     let mut seen_phys_disks: HashSet<String> = HashSet::new(); 
