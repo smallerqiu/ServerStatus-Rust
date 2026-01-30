@@ -137,7 +137,7 @@ pub fn sample(args: &Args, stat: &mut StatRequest) {
     // let mut uniq_disk_set: HashSet<String> = HashSet::new();
 
     let disks = Disks::new_with_refreshed_list();
-    let mut seen_phys_disks = HashSet::new(); 
+    let mut seen_phys_disks: HashSet<String> = HashSet::new(); 
 
     stat.disks.clear();
 
