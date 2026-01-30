@@ -130,38 +130,44 @@ pub fn sample(args: &Args, stat: &mut StatRequest) {
 
     // hdd KB -> KiB
     let (mut hdd_total, mut hdd_avail) = (0_u64, 0_u64);
+    let (mut hdd_total_bytes, mut hdd_avail_bytes) = (0_u64, 0_u64);
 
-    #[cfg(not(target_os = "windows"))]
+    // #[cfg(not(target_os = "windows"))]
     // let mut uniq_disk_set = HashSet::new();
     // let mut uniq_disk_set: HashSet<String> = HashSet::new();
 
-    // ++
-    let mut hdd_total_bytes = 0_u64;
-    let mut hdd_avail_bytes = 0_u64;
-    let mut seen_phys_disks = HashSet::new(); // 使用挂载点去重，防止 LVM 重复统计
+    let disks = Disks::new_with_refreshed_list();
+    let mut seen_phys_disks = HashSet::new(); 
 
     stat.disks.clear();
-    // ++
 
-    let disks = Disks::new_with_refreshed_list();
     for disk in &disks {
         let mount_point = disk.mount_point().to_string_lossy().to_string();
         let fs_type = disk.file_system().to_string_lossy().to_lowercase();
         let total_space = disk.total_space();
 
         if G_EXPECT_FS.iter().any(|&k| fs_type.contains(k)) {
-            // 唯一标识：总大小 + 文件系统类型
+            // 生成唯一标识
             let disk_id = format!("{}-{}", total_space, fs_type);
-            // println!("Checking: {} | FS: {} | Size: {} B", mount_point, fs_type, disk.total_space());
+            let mut is_new_phys_disk = true;
 
-            if !seen_phys_disks.contains(&disk_id) {
-                seen_phys_disks.insert(disk_id);
-
+            #[cfg(not(target_os = "windows"))]
+            {
+                // Linux 下检查是否是重复的物理分区
+                if seen_phys_disks.contains(&disk_id) {
+                    is_new_phys_disk = false;
+                } else {
+                    seen_phys_disks.insert(disk_id);
+                }
+            }
+            
+            // 如果是新的物理磁盘（Windows 默认都是新的，Linux 经过上面去重判断）
+            if is_new_phys_disk {
                 hdd_total_bytes += total_space;
                 hdd_avail_bytes += disk.available_space();
             }
 
-            // 但 stat.disks 列表里可以保留所有挂载点展示
+            // 无论是否是重复物理磁盘，挂载点信息都要存入列表供前端展示
             stat.disks.push(DiskInfo {
                 name: disk.name().to_string_lossy().to_string(),
                 mount_point,
@@ -173,8 +179,8 @@ pub fn sample(args: &Args, stat: &mut StatRequest) {
         }
     }
 
-    stat.hdd_total = (hdd_total_bytes / 1024 / 1024) as u64;
-    stat.hdd_used = ((hdd_total_bytes - hdd_avail_bytes) / 1024 / 1024) as u64;
+    stat.hdd_total = hdd_total_bytes / 1024 / 1024;
+    stat.hdd_used = (hdd_total_bytes - hdd_avail_bytes) / 1024 / 1024;
 
     // stat.hdd_total = hdd_total / unit.pow(2);
     // stat.hdd_used = (hdd_total - hdd_avail) / unit.pow(2);
