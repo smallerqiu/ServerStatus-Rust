@@ -15,16 +15,18 @@ repository = "https://github.com/zdz/ServerStatus-Rust"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bytes = {version = "1.11.0", features = ["serde"]}
-prost = "0.14.3"
-serde = {version = "1.0.228", default-features = false, features = ["derive", "alloc"]}
 tonic = {version = "0.14.3"}
+prost = "0.14.3"
+bytes = {version = "1.11.0", features = ["serde"]}
+serde = {version = "1.0.228", default-features = false, features = ["derive", "alloc"]}
+tonic-prost="0.14.3"
 
 [target.'cfg(not(target_env = "msvc"))'.build-dependencies]
 chrono = "0.4.43"
 protobuf-src = "2.1.1"
-tonic-build =  "0.14.3"
+prost-build = "0.14.3"
 
 [build-dependencies]
 chrono = "0.4.43"
-tonic-build =  "0.14.3"
+tonic-build = "0.14.3"
+tonic-prost-build="0.14.3"

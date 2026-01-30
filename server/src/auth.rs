@@ -1,5 +1,4 @@
 use axum::{
-    async_trait,
     extract::FromRequestParts,
     http::{header, request::Parts, StatusCode},
     response::{IntoResponse, Response},
@@ -24,7 +23,6 @@ pub struct AdminAuth(BasicAuth);
 #[derive(Debug, Serialize, Deserialize)]
 pub struct HostAuth(BasicAuth);
 
-#[async_trait]
 impl<S> FromRequestParts<S> for BasicAuth
 where
     S: Send + Sync,
@@ -45,7 +43,6 @@ where
     }
 }
 
-#[async_trait]
 impl<S> FromRequestParts<S> for AdminAuth
 where
     S: Send + Sync,
@@ -87,7 +84,6 @@ where
     }
 }
 
-#[async_trait]
 impl<S> FromRequestParts<S> for HostAuth
 where
     S: Send + Sync,

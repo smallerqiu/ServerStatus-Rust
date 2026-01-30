@@ -18,6 +18,8 @@ repository = "https://github.com/zdz/ServerStatus-Rust"
 
 [build-dependencies]
 chrono = "0.4.43"
+tonic-prost-build = "0.14.3"
+
 
 [dependencies]
 anyhow = "1.0.100"
@@ -43,10 +45,13 @@ stat_common = {path = "../common", version = "1.1.4"}
 sysinfo = "0.38.0"
 tokio = {version = "1.49.0", features = ["full"]}
 tokio-rustls = { version = "0.26.4" }
-tonic = {version = "0.14.3", features = ["gzip"]}
+tonic = {version = "0.14.3", features = ["gzip","codegen", "transport","tls-ring"]}
 tower = { version = "0.5.3" }
 webpki-roots = "1.0.5"
 url = "2.5.8"
+tonic-build = "0.14.3"
+rustls-native-certs="0.8.3"
+tonic-prost="0.14.3"
 
 [features]
 default = ["sysinfo"]

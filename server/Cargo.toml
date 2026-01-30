@@ -18,6 +18,8 @@ repository = "https://github.com/zdz/ServerStatus-Rust"
 
 [build-dependencies]
 chrono = "0.4.43"
+tonic-prost-build = "0.14.3"
+
 
 [dependencies]
 anyhow = "1.0.100"
@@ -50,10 +52,12 @@ stat_common = {path = "../common", version = "1.1.4"}
 tokio = {version = "1.49.0", features = ["full"]}
 tokio-rustls = { version = "0.26.4" }
 toml = "0.9.8"
-tonic = "0.14.3"
+tonic = {version="0.14.3",features = ["_tls-any"]}
 tower-http = { version = "0.6.8", features = ["cors", "add-extension"] }
 url = "2.5.8"
 uuid = {version = "1.20.0", default-features = false, features = ["serde", "v4"]}
+async-trait = "0.1.89"
+tonic-prost="0.14.3"
 
 [package.metadata.deb]
 maintainer = "zdz <doge.py@gmail.com>"

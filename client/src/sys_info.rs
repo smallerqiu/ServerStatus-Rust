@@ -47,11 +47,11 @@ lazy_static! {
 pub fn start_cpu_percent_collect_t() {
     let mut sys = System::new_with_specifics(RefreshKind::nothing().with_cpu(CpuRefreshKind::nothing().with_cpu_usage()));
     thread::spawn(move || loop {
-        sys.refresh_cpu();
+        sys.refresh_cpu_all();
 
         let global_cpu = sys.global_cpu_usage();
         if let Ok(mut cpu_percent) = G_CPU_PERCENT.lock() {
-            *cpu_percent = global_cpu.cpu_usage().round() as f64;
+            *cpu_percent = global_cpu.round() as f64;
         }
 
         thread::sleep(Duration::from_millis(SAMPLE_PERIOD));
@@ -133,42 +133,51 @@ pub fn sample(args: &Args, stat: &mut StatRequest) {
 
     #[cfg(not(target_os = "windows"))]
     // let mut uniq_disk_set = HashSet::new();
-    let mut uniq_disk_set: HashSet<String> = HashSet::new();
+    // let mut uniq_disk_set: HashSet<String> = HashSet::new();
+
+    // ++
+    let mut hdd_total_bytes = 0_u64;
+    let mut hdd_avail_bytes = 0_u64;
+    let mut seen_phys_disks = HashSet::new(); // 使用挂载点去重，防止 LVM 重复统计
+
+    stat.disks.clear();
+    // ++
 
     let disks = Disks::new_with_refreshed_list();
     for disk in &disks {
-        let di = DiskInfo {
-            name: disk.name().to_str().unwrap().to_string(),
-            mount_point: disk.mount_point().to_str().unwrap().to_string(),
-            file_system: disk.file_system().to_str().unwrap().to_string(),
-            total: disk.total_space(),
-            used: disk.total_space() - disk.available_space(),
-            free: disk.available_space(),
-        };
+        let mount_point = disk.mount_point().to_string_lossy().to_string();
+        let fs_type = disk.file_system().to_string_lossy().to_lowercase();
+        let total_space = disk.total_space();
 
-        let fs = di.file_system.to_lowercase();
-        if G_EXPECT_FS.iter().any(|&k| fs.contains(k)) {
-            #[cfg(not(target_os = "windows"))]
-            {
-                // if uniq_disk_set.contains(disk.name()) {
-                    // continue;
-                let disk_name = disk.name().to_string_lossy().to_string();
-                if uniq_disk_set.contains(&disk_name) {
-                    continue;
-                }
-                // uniq_disk_set.insert(disk.name());
-                uniq_disk_set.insert(disk_name);
+        if G_EXPECT_FS.iter().any(|&k| fs_type.contains(k)) {
+            // 唯一标识：总大小 + 文件系统类型
+            let disk_id = format!("{}-{}", total_space, fs_type);
+            // println!("Checking: {} | FS: {} | Size: {} B", mount_point, fs_type, disk.total_space());
+
+            if !seen_phys_disks.contains(&disk_id) {
+                seen_phys_disks.insert(disk_id);
+
+                hdd_total_bytes += total_space;
+                hdd_avail_bytes += disk.available_space();
             }
 
-            hdd_total += disk.total_space();
-            hdd_avail += disk.available_space();
+            // 但 stat.disks 列表里可以保留所有挂载点展示
+            stat.disks.push(DiskInfo {
+                name: disk.name().to_string_lossy().to_string(),
+                mount_point,
+                file_system: fs_type,
+                total: total_space,
+                used: total_space - disk.available_space(),
+                free: disk.available_space(),
+            });
         }
-
-        stat.disks.push(di);
     }
 
-    stat.hdd_total = hdd_total / unit.pow(2);
-    stat.hdd_used = (hdd_total - hdd_avail) / unit.pow(2);
+    stat.hdd_total = (hdd_total_bytes / 1024 / 1024) as u64;
+    stat.hdd_used = ((hdd_total_bytes - hdd_avail_bytes) / 1024 / 1024) as u64;
+
+    // stat.hdd_total = hdd_total / unit.pow(2);
+    // stat.hdd_used = (hdd_total - hdd_avail) / unit.pow(2);
 
     // t/u/p/d
     let (t, u, p, d) = if args.disable_tupd {
